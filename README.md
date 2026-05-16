@@ -1,6 +1,19 @@
 # maim
 maim (Make Image) is an utility that takes screenshots of your desktop. It's meant to overcome shortcomings of scrot and performs better in several ways.
 
+## Yeyito local fork
+
+This is an independent public repository for my local maim build. It is configured so:
+
+```bash
+make
+make install
+```
+
+builds maim and installs the executable to `~/.local/bin/maim` by default.
+
+This repository is not connected to the upstream maim GitHub fork network. The original maim source remains GPL-3.0-or-later as described in `license.txt` and `COPYING`; locally-authored wrapper/configuration changes are additionally available under the MIT license in `LICENSE-MIT`.
+
 ## Features
 * Takes screenshots of your desktop, and saves it in png, jpg, or bmp format.
 * Takes screenshots of predetermined regions or windows, useful for automation.
