@@ -12,7 +12,11 @@ make install
 
 builds maim and installs the executable to `~/.local/bin/maim` by default.
 
-This repository is not connected to the upstream maim GitHub fork network. The original maim source remains GPL-3.0-or-later as described in `license.txt` and `COPYING`; locally-authored wrapper/configuration changes are additionally available under the MIT license in `LICENSE-MIT`.
+Local behavior change:
+
+- During interactive selection (`maim -s`), `Enter` / keypad `Enter` acts like the left mouse button instead of cancelling the selection. Hold Enter to drag, release Enter to finish, or tap Enter to select the highlighted window.
+
+This repository is not connected to the upstream maim GitHub fork network. The original maim source and the vendored slop source remain GPL-3.0-or-later as described in `license.txt`, `COPYING`, and `third_party/slop/`; locally-authored wrapper/configuration changes are additionally available under the MIT license in `LICENSE-MIT`.
 
 ## Features
 * Takes screenshots of your desktop, and saves it in png, jpg, or bmp format.

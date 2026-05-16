@@ -24,7 +24,10 @@ set( BIN_TARGET     "${PROJECT_NAME}" )
 add_executable( "${BIN_TARGET}" ${source} )
 
 # Obtain library paths and make sure they exist.
-set( CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${CMAKE_SOURCE_DIR}/modules" )
+set( CMAKE_MODULE_PATH
+     "${CMAKE_MODULE_PATH}"
+     "${CMAKE_SOURCE_DIR}/modules"
+     "${CMAKE_SOURCE_DIR}/third_party/slop/modules" )
 find_package( PNG        REQUIRED )
 find_package( JPEG       REQUIRED )
 find_package( WebP       REQUIRED )
@@ -33,9 +36,51 @@ find_package( XRender    REQUIRED )
 find_package( XFixes     REQUIRED )
 find_package( XComposite REQUIRED )
 find_package( X11        REQUIRED )
-find_package( SLOP       REQUIRED )
+find_package( XExt       REQUIRED )
+find_package( GLEW       REQUIRED )
+find_package( OpenGL     REQUIRED )
+find_package( GLX        REQUIRED )
 find_package( Threads    REQUIRED )
 find_package( GLM        REQUIRED )
+
+# Vendored slop: this fork owns its interactive-selection behavior instead of
+# linking to the distro slop library. In particular, this local copy maps Enter
+# / keypad Enter to a virtual left mouse button during selection.
+set( SLOP_SOURCE_DIR "${CMAKE_SOURCE_DIR}/third_party/slop/src" )
+add_library( maim_slopy STATIC
+             ${SLOP_SOURCE_DIR}/mouse.cpp
+             ${SLOP_SOURCE_DIR}/keyboard.cpp
+             ${SLOP_SOURCE_DIR}/x.cpp
+             ${SLOP_SOURCE_DIR}/slopstates.cpp
+             ${SLOP_SOURCE_DIR}/resource.cpp
+             ${SLOP_SOURCE_DIR}/slop.cpp
+             ${SLOP_SOURCE_DIR}/rectangle.cpp
+             ${SLOP_SOURCE_DIR}/xshaperectangle.cpp
+             ${SLOP_SOURCE_DIR}/shader.cpp
+             ${SLOP_SOURCE_DIR}/window.cpp
+             ${SLOP_SOURCE_DIR}/framebuffer.cpp
+             ${SLOP_SOURCE_DIR}/glrectangle.cpp )
+target_compile_definitions( maim_slopy PRIVATE SLOP_OPENGL="True" )
+set_property(TARGET maim_slopy PROPERTY CXX_STANDARD_REQUIRED ON)
+set_property(TARGET maim_slopy PROPERTY CXX_STANDARD 17)
+set_property(TARGET maim_slopy PROPERTY CXX_EXTENSIONS OFF)
+target_include_directories( maim_slopy PRIVATE
+                            ${X11_INCLUDE_DIR}
+                            ${GLM_INCLUDE_DIR}
+                            ${GLX_INCLUDE_DIR}
+                            ${XEXT_INCLUDE_DIR}
+                            ${XRENDER_INCLUDE_DIR}
+                            ${OPENGL_INCLUDE_DIR}
+                            ${SLOP_SOURCE_DIR} )
+target_link_libraries( maim_slopy
+                       ${X11_LIBRARIES}
+                       ${GLM_LIBRARIES}
+                       ${XEXT_LIBRARIES}
+                       ${OPENGL_LIBRARIES}
+                       ${XRENDER_LIBRARY}
+                       ${CMAKE_THREAD_LIBS_INIT}
+                       ${GLX_LIBRARY}
+                       GLEW::GLEW )
 
 set_property(TARGET ${BIN_TARGET} PROPERTY CXX_STANDARD_REQUIRED ON)
 set_property(TARGET ${BIN_TARGET} PROPERTY CXX_STANDARD 17)
@@ -44,7 +89,7 @@ set_property(TARGET ${BIN_TARGET} PROPERTY CXX_EXTENSIONS OFF)
 # Includes
 include_directories( ${XRANDR_INCLUDE_DIR}
                      ${X11_INCLUDE_DIR}
-                     ${SLOP_INCLUDE_DIR}
+                     ${SLOP_SOURCE_DIR}
                      ${GLM_INCLUDE_DIR}
                      ${XFIXES_INCLUDE_DIR}
                      ${XCOMPOSITE_INCLUDE_DIR}
@@ -64,7 +109,7 @@ target_link_libraries( ${BIN_TARGET}
                        ${XRANDR_LIBRARY}
                        ${JPEG_LIBRARIES}
                        ${XRENDER_LIBRARY}
-                       ${SLOP_LIBRARY}
+                       maim_slopy
                        ${WEBP_LIBRARY} )
 
 find_package(ICU COMPONENTS uc)

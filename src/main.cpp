@@ -322,7 +322,8 @@ OPTIONS
        -s, --select
               Enables an interactive selection mode where  you  may  select  the
               desired region or window before a screenshot is captured. Uses the
-              settings below to determine the visuals and settings of slop.
+              settings below to determine the visuals and settings of slop.  In
+              this fork, Enter and keypad Enter act like the left mouse button.
 
        -w, --parent=WINDOW
               By  default, maim assumes the --geometry values are in respect to
@@ -419,7 +420,7 @@ int app( int argc, char** argv ) {
     ("d,delay", "Sets the time in seconds to wait  before taking a screenshot. Prints a simple message to show how many seconds are left before a screenshot is taken. See --quiet for muting this message.", cxxopts::value<float>()->implicit_value("5"))
     ("u,hidecursor", "By default maim super-imposes the cursor onto the image, you can disable that behavior with this flag.")
     ("m,quality", "An integer from 1 to 10 that determines the compression quality. For lossy formats (jpg and webp), lower settings will produce smaller files with lower quality, while higher settings will increase quality at the cost of higher file size. A quality of 10 is lossless for webp. For png, lower settings will compress faster and produce larger files, while higher settings will compress slower, but produce smaller files. No effect on bmp images.", cxxopts::value<int>())
-    ("s,select", "Enables an interactive selection mode where you may select the desired region or window before a screenshot is captured. Uses the  settings below to determine the visuals and settings of slop.")
+    ("s,select", "Enables an interactive selection mode where you may select the desired region or window before a screenshot is captured. Uses the settings below to determine the visuals and settings of slop. In this fork, Enter and keypad Enter act like the left mouse button.")
     ("b,bordersize", "Sets the selection rectangle's thickness.", cxxopts::value<float>())
     ("p,padding", "Sets the padding size for the selection, this can be negative.", cxxopts::value<float>())
     ("t,tolerance", "How far in pixels the mouse can move after clicking, and still be detected as a normal click instead of a click-and-drag. Setting this to 0 will disable window selections. Alternatively setting it to 9999999 would force a window selection.", cxxopts::value<float>())
