@@ -1,4 +1,5 @@
 #include <chrono>
+#include <stdexcept>
 #include <thread>
 #include "keyboard.hpp"
 
@@ -68,21 +69,31 @@ void slop::Keyboard::update() {
 
 slop::Keyboard::Keyboard( X11* x11 ) {
     this->x11 = x11;
+    grabbed = false;
     int err = XGrabKeyboard( x11->display, x11->root, False, GrabModeAsync, GrabModeAsync, CurrentTime );
     int tries = 0;
-    while( err != GrabSuccess && tries < 5 ) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    // When maim is launched from a hotkey, the window manager/keybinding
+    // daemon can still have an active keyboard grab for a short moment.  The
+    // upstream slop code only retried for ~5ms and then continued without a
+    // grab, which let our Enter-as-click keypress leak through to whatever
+    // app was underneath the selection.  Wait longer and require the grab: if
+    // we cannot own the keyboard, Enter cannot be safely used as a click.
+    while( err != GrabSuccess && tries < 400 ) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
         err = XGrabKeyboard( x11->display, x11->root, False, GrabModeAsync, GrabModeAsync, CurrentTime );
         tries++;
     }
-    // Non-fatal.
     if ( err != GrabSuccess ) {
-        //throw std::runtime_error( "Couldn't grab the keyboard after 10 tries." );
+        throw new std::runtime_error( "Couldn't grab the keyboard; refusing to start selection because Enter-as-click would leak to the focused application." );
     }
+    grabbed = true;
+    XSync( x11->display, False );
     XQueryKeymap( x11->display, deltaState );
     keyDown = false;
 }
 
 slop::Keyboard::~Keyboard() {
-    XUngrabKeyboard( x11->display, CurrentTime );
+    if ( grabbed ) {
+        XUngrabKeyboard( x11->display, CurrentTime );
+    }
 }

@@ -34,6 +34,7 @@ private:
     char deltaState[32];
     X11* x11;
     bool keyDown;
+    bool grabbed;
     void maskKey( char* keys, KeySym key );
 public:
     Keyboard( X11* x11 );
